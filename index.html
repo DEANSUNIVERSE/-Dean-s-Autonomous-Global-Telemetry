@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃 | Global Neural Mesh & Autonomous Edge</title>
+<meta name="description" content="Dean's global neural infrastructure for real-time spatial computing, low-latency microservices, and kinetic web graphics.">
+
+<!-- Fonts: Plus Jakarta Sans & JetBrains Mono -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Lucide Icons CDN -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- D3.js for Orthographic Dotted Globe -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
+      },
+      colors: {
+        noir: '#050608',
+        surface: '#0b0d14',
+        panel: '#101420',
+        crimson: '#fc3b56',
+        'crimson-dark': '#d90429',
+        gold: '#d6ad63',
+        'gold-bright': '#f2d18a',
+        border: 'rgba(255, 255, 255, 0.08)',
+      },
+      animation: {
+        'spin-slow': 'spin 14s linear infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      }
+    }
+  }
+}
+</script>
+
+<style>
+:root {
+  --accent-crimson: #fc3b56;
+  --accent-gold: #d6ad63;
+}
+
+body {
+  background-color: #050608;
+  color: #f4f5f7;
+  overflow-x: hidden;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #07080c; }
+::-webkit-scrollbar-thumb { background: #1c202d; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-crimson); }
+
+::selection {
+  background: var(--accent-crimson);
+  color: #fff;
+}
+
+/* Background Grids */
+.bg-grid-pattern {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+}
+
+/* Shiny Tactical CTA Button */
+.shiny-cta {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: linear-gradient(#080a11, #080a11) padding-box,
+              linear-gradient(90deg, transparent 20%, #fc3b56 50%, transparent 80%) border-box;
+  border: 1px solid transparent;
+  background-size: 200% 100%;
+  animation: border-shine 4s linear infinite;
+}
+
+@keyframes border-shine {
+  0% { background-position: 200% 0, 200% 0; }
+  100% { background-position: -200% 0, -200% 0; }
+}
+
+/* Glass Bento Cards */
+.glass-card {
+  background: rgba(13, 16, 24, 0.7);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(214, 173, 99, 0.35);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px rgba(214, 173, 99, 0.1);
+}
+
+/* Globe Canvas Transitions */
+canvas#globe-canvas {
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+  cursor: grab;
+}
+
+canvas#globe-canvas:active {
+  cursor: grabbing;
+}
+
+canvas#globe-canvas.loaded {
+  opacity: 1;
+}
+
+@keyframes animStar {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-2000px); }
+}
+</style>
+</head>
+<body class="antialiased relative bg-[#050608]">
+
+  <!-- Fixed Cosmic Starfield Layer -->
+  <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_#140810_0%,_#050608_100%)]"></div>
+    <div id="stars-layer" class="absolute inset-0 w-[1px] h-[1px] bg-transparent animate-[animStar_120s_linear_infinite]" style="box-shadow: 200px 300px #fff, 800px 400px #fff, 1200px 900px #fff, 400px 1400px #fff, 1600px 600px #fff, 1000px 1700px #fff, 300px 800px #fff, 1500px 1300px #fff, 700px 100px #fff;"></div>
+    <div class="absolute inset-0 bg-grid-pattern z-[1] opacity-70"></div>
+    
+    <!-- Ambient Neon Lighting Orbs -->
+    <div class="absolute top-[-10%] left-[20%] w-[450px] h-[450px] bg-crimson/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="absolute bottom-[10%] right-[10%] w-[350px] h-[350px] bg-gold/10 rounded-full blur-[100px] pointer-events-none"></div>
+  </div>
+
+  <!-- Real-Time Top Progress Bar -->
+  <div class="fixed top-0 left-0 w-full h-[2px] z-[60]">
+    <div id="scroll-progress" class="h-full bg-crimson w-0 transition-all duration-100 ease-out shadow-[0_0_10px_#fc3b56]"></div>
+  </div>
+
+  <!-- Top Navigation Header -->
+  <header class="fixed top-0 w-full z-50 pt-4 px-4 md:px-8">
+    <div class="max-w-7xl mx-auto">
+      <nav class="bg-[#0b0e17]/80 backdrop-blur-xl border border-white/10 rounded-full px-5 py-3.5 flex items-center justify-between shadow-2xl transition-all">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-crimson to-black flex items-center justify-center border border-white/10 shadow-[0_0_10px_rgba(252,59,86,0.4)]">
+            <span class="w-2 h-2 rounded-full bg-white"></span>
+          </div>
+          <span class="text-sm md:text-base font-mono font-bold tracking-wider text-white">
+            𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 <span class="text-gold">🍃</span>
+          </span>
+        </div>
+
+        <div class="hidden md:flex items-center gap-8 font-mono text-xs font-bold tracking-wider text-neutral-400">
+          <a href="#capabilities" class="hover:text-white transition-colors">CAPABILITIES</a>
+          <a href="#edge" class="hover:text-white transition-colors">GLOBAL_EDGE</a>
+          <a href="#clusters" class="hover:text-white transition-colors">CLUSTERS</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <span class="hidden sm:inline font-mono text-[11px] text-emerald-400">● 60 FPS SYNC</span>
+          <a href="#clusters" class="shiny-cta px-5 py-2 text-[11px] font-mono font-bold uppercase tracking-wider text-white flex items-center gap-2">
+            <span>Deploy Core</span>
+            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section With Interactive D3 Globe -->
+  <main class="relative z-10 pt-32 pb-20 px-6 max-w-7xl mx-auto overflow-hidden">
+    <div class="grid lg:grid-cols-2 gap-12 items-center min-h-[75vh]">
+      
+      <!-- Left Column: Copy & Command Dock -->
+      <div class="flex flex-col items-center lg:items-start text-center lg:text-left order-2 lg:order-1 relative z-20 space-y-6">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/10 bg-black/40 backdrop-blur-md">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-crimson opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-crimson"></span>
+          </span>
+          <span class="text-[11px] font-mono text-neutral-300 tracking-wider uppercase">
+            Dean's Autonomous Global Telemetry
+          </span>
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.05]">
+          The Neural Mesh of <br class="hidden lg:block">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-gold to-crimson">
+            Spatial Reality.
+          </span>
+        </h1>
+
+        <p class="text-neutral-400 text-sm md:text-base font-normal leading-relaxed max-w-xl">
+          Synthesizing Three.js spatial simulations, GSAP timeline kinetics, and distributed edge microservices into one seamless high-performance canvas.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 pt-4 w-full sm:w-auto font-mono text-xs">
+          <a href="#clusters" class="w-full sm:w-auto px-8 py-4 bg-crimson hover:bg-crimson-dark text-white rounded-full font-bold uppercase tracking-wider transition-all shadow-[0_0_30px_rgba(252,59,86,0.35)] flex items-center justify-center gap-3">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+            Initialize Engine
+          </a>
+          <a href="https://github.com/DEANSUNIVERSE" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-full border border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-neutral-200 transition-all flex items-center justify-center gap-3 font-bold uppercase tracking-wider">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+            Inspect Repositories
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: D3.js Holographic Dotted Earth -->
+      <div class="relative w-full h-[450px] md:h-[600px] flex items-center justify-center order-1 lg:order-2">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-crimson/15 rounded-full blur-[100px] pointer-events-none"></div>
+
+        <div id="globe-container" class="w-full h-full relative z-10 flex items-center justify-center">
+          <canvas id="globe-canvas" class="w-full h-full max-w-[650px] aspect-square"></canvas>
+          <div id="globe-loader" class="absolute text-gold font-mono text-xs animate-pulse">CALIBRATING MESH...</div>
+
+          <div class="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-mono text-neutral-500 uppercase tracking-widest pointer-events-none flex items-center gap-2 whitespace-nowrap">
+            <span>●</span> Drag to Rotate • Scroll to Zoom <span>●</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Telemetry Status Strip -->
+    <div class="mt-16 border-y border-white/5 bg-white/[0.015] py-8 rounded-xl font-mono text-xs">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 px-6">
+        <span class="font-bold tracking-widest text-neutral-500 uppercase">CORE INFRASTRUCTURE TELEMETRY</span>
+        <div class="flex flex-wrap justify-center gap-8 md:gap-14 text-neutral-400 font-bold">
+          <div>NODES: <span class="text-white">400+ GLOBAL</span></div>
+          <div>FRAME BUDGET: <span class="text-emerald-400">&lt; 16.6MS</span></div>
+          <div>LATENCY: <span class="text-gold">14MS EDGE</span></div>
+          <div>SECURITY: <span class="text-crimson">TLS 1.3 ARMORED</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bento Grid Capabilities Section -->
+  <section id="capabilities" class="py-24 px-6 max-w-7xl mx-auto relative z-10">
+    <div class="mb-14">
+      <span class="text-gold font-mono text-xs font-bold tracking-widest uppercase block mb-3">// ARCHITECTURAL MATRIX</span>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">
+        Cognitive <span class="text-crimson">Processing Units</span>
+      </h2>
+      <p class="text-neutral-400 text-sm max-w-xl">Modular architectural components engineered for extreme performance and graphical retention.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Card 1: Three.js Spatial Engine (Wide) -->
+      <div class="glass-card md:col-span-2 rounded-2xl p-8 relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+        <div class="w-11 h-11 rounded-xl bg-crimson/10 border border-crimson/30 flex items-center justify-center text-crimson mb-6">
+          <i data-lucide="cpu" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold text-white mb-3">Spatial Three.js Physics</h3>
+          <p class="text-neutral-400 text-sm leading-relaxed max-w-xl">
+            Real-time particle systems, vertex distortion shaders, and WebGL memory buffers built to eliminate CPU main-thread starvation.
+          </p>
+        </div>
+        <div class="mt-8 flex gap-2">
+          <div class="h-1 w-16 bg-crimson rounded-full"></div>
+          <div class="h-1 w-5 bg-neutral-800 rounded-full"></div>
+          <div class="h-1 w-5 bg-neutral-800 rounded-full"></div>
+        </div>
+      </div>
+
+      <!-- Card 2: Zero Latency -->
+      <div class="glass-card rounded-2xl p-8 relative overflow-hidden flex flex-col justify-between min-h-[300px]">
+        <div class="w-11 h-11 rounded-xl bg-gold/10 border border-gold/30 flex items-center justify-center text-gold mb-6">
+          <i data-lucide="activity" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-white mb-3">Microsecond Edge Dispatch</h3>
+          <p class="text-neutral-400 text-sm leading-relaxed">
+            Zero bloat JavaScript deployment models achieving pristine 100/100 Core Web Vitals across every viewport.
+          </p>
+        </div>
+        <div class="font-mono text-xs text-neutral-500 pt-4">SLA: 99.999% VERIFIED</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Clusters / Deployment Pricing -->
+  <section id="clusters" class="py-24 px-6 max-w-7xl mx-auto border-t border-white/5 relative z-10">
+    <div class="text-center mb-16">
+      <span class="text-gold font-mono text-xs font-bold tracking-widest uppercase block mb-3">// ALLOCATION</span>
+      <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-4">Initialize Cluster</h2>
+      <p class="text-neutral-400 text-sm">Select computational throughput for custom spatial builds.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto font-mono">
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <span class="text-xs text-neutral-400 font-bold block mb-2">CLUSTER 01 // INDEPENDENT</span>
+          <div class="text-3xl font-bold text-white mb-4">$0 <span class="text-xs text-neutral-500 font-normal">/ starter</span></div>
+          <p class="text-xs text-neutral-400 leading-relaxed mb-6 font-sans">Open-source GitHub artifacts and community-tested Three.js configurations.</p>
+          <ul class="text-xs text-neutral-300 space-y-3 border-t border-white/10 pt-6">
+            <li>✓ Public Repository Access</li>
+            <li>✓ Baseline Shader Shaders</li>
+            <li>✓ Standard Viewport Adapters</li>
+          </ul>
+        </div>
+        <a href="https://github.com/DEANSUNIVERSE" target="_blank" class="mt-8 text-center py-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold uppercase transition-all">
+          Explore Artifacts
+        </a>
+      </div>
+
+      <div class="glass-card p-8 rounded-2xl border-2 border-crimson flex flex-col justify-between shadow-[0_0_35px_rgba(252,59,86,0.2)] scale-[1.03]">
+        <div>
+          <span class="text-xs text-crimson font-bold block mb-2">CLUSTER 02 // PRO ARCHITECT</span>
+          <div class="text-3xl font-bold text-white mb-4">$3,500 <span class="text-xs text-neutral-500 font-normal">/ sprint</span></div>
+          <p class="text-xs text-neutral-400 leading-relaxed mb-6 font-sans">Dedicated 2-3 week high-velocity brand sprint including custom WebGL, UI, and component delivery.</p>
+          <ul class="text-xs text-neutral-200 space-y-3 border-t border-white/10 pt-6">
+            <li>✓ Bespoke 3D WebGL Canvas</li>
+            <li>✓ Full GSAP Motion Direction</li>
+            <li>✓ Component-Ready Codebase</li>
+            <li>✓ Production Deploy Support</li>
+          </ul>
+        </div>
+        <a href="mailto:epicgameglider@gmail.com" class="mt-8 text-center py-3 rounded-lg bg-crimson hover:bg-crimson-dark text-white text-xs font-bold uppercase transition-all shadow-[0_0_15px_rgba(252,59,86,0.4)]">
+          Commission Build
+        </a>
+      </div>
+
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <span class="text-xs text-gold font-bold block mb-2">CLUSTER 03 // ENTERPRISE</span>
+          <div class="text-3xl font-bold text-white mb-4">Custom</div>
+          <p class="text-xs text-neutral-400 leading-relaxed mb-6 font-sans">Comprehensive end-to-end multi-platform web architecture and dedicated infrastructure maintenance.</p>
+          <ul class="text-xs text-neutral-300 space-y-3 border-t border-white/10 pt-6">
+            <li>✓ Full-Stack System Design</li>
+            <li>✓ High-Concurrency Scale</li>
+            <li>✓ Dedicated Engineering Lead</li>
+          </ul>
+        </div>
+        <a href="mailto:epicgameglider@gmail.com" class="mt-8 text-center py-3 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-bold uppercase transition-all">
+          Direct Transmission
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Master Footer -->
+  <footer class="border-t border-white/10 py-12 px-6 max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-xs font-mono text-neutral-500 gap-4">
+    <div>𝕯𝖊𝖆𝖓'𝖘 𝖀𝖓𝖎𝖛𝖊𝖗𝖘𝖊 🍃 // GLOBAL NEURAL MESH &copy; 2026</div>
+    <div class="flex items-center gap-3">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span class="text-neutral-400">EDGE OPERATIONAL</span>
+    </div>
+  </footer>
+
+  <!-- D3.js Holographic Dotted Globe Script -->
+  <script>
+    lucide.createIcons();
+
+    // Scroll Progress Handler
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scroll-progress').style.width = scrolled + "%";
+    }, { passive: true });
+
+    // D3.js Dotted Globe Implementation
+    (function initDottedGlobe() {
+      const canvas = document.getElementById('globe-canvas');
+      const loader = document.getElementById('globe-loader');
+      const container = document.getElementById('globe-container');
+      if (!canvas || !container) return;
+
+      const context = canvas.getContext('2d', { alpha: true });
+      let width = container.clientWidth;
+      let height = container.clientHeight;
+      let radius = Math.min(width, height) / 2.2;
+
+      let landFeatures = null;
+      let allDots = [];
+      let rotation = [0, -10];
+      let autoRotate = true;
+      let rotationSpeed = 0.45;
+
+      const projection = d3.geoOrthographic()
+        .scale(radius)
+        .translate([width / 2, height / 2])
+        .clipAngle(90);
+
+      const path = d3.geoPath().projection(projection).context(context);
+
+      function resize() {
+        width = container.clientWidth;
+        height = container.clientHeight;
+        radius = Math.min(width, height) / 2.2;
+
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+
+        context.scale(dpr, dpr);
+        projection.scale(radius).translate([width / 2, height / 2]);
+        if (landFeatures) render();
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      function pointInPolygon(point, polygon) {
+        const [x, y] = point;
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+          const [xi, yi] = polygon[i];
+          const [xj, yj] = polygon[j];
+          if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) {
+            inside = !inside;
+          }
+        }
+        return inside;
+      }
+
+      function pointInFeature(point, feature) {
+        const geometry = feature.geometry;
+        if (geometry.type === "Polygon") {
+          const coordinates = geometry.coordinates;
+          if (!pointInPolygon(point, coordinates[0])) return false;
+          for (let i = 1; i < coordinates.length; i++) {
+            if (pointInPolygon(point, coordinates[i])) return false;
+          }
+          return true;
+        } else if (geometry.type === "MultiPolygon") {
+          for (const polygon of geometry.coordinates) {
+            if (pointInPolygon(point, polygon[0])) {
+              let inHole = false;
+              for (let i = 1; i < polygon.length; i++) {
+                if (pointInPolygon(point, polygon[i])) {
+                  inHole = true;
+                  break;
+                }
+              }
+              if (!inHole) return true;
+            }
+          }
+          return false;
+        }
+        return false;
+      }
+
+      function generateDotsInPolygon(feature, dotSpacing = 20) {
+        const dots = [];
+        const bounds = d3.geoBounds(feature);
+        const [[minLng, minLat], [maxLng, maxLat]] = bounds;
+        const stepSize = dotSpacing * 0.12;
+
+        for (let lng = minLng; lng <= maxLng; lng += stepSize) {
+          for (let lat = minLat; lat <= maxLat; lat += stepSize) {
+            const point = [lng, lat];
+            if (pointInFeature(point, feature)) {
+              dots.push(point);
+            }
+          }
+        }
+        return dots;
+      }
+
+      function render() {
+        context.clearRect(0, 0, width, height);
+
+        const currentScale = projection.scale();
+        const scaleFactor = currentScale / radius;
+
+        // Globe Edge Ring
+        context.beginPath();
+        context.arc(width / 2, height / 2, currentScale, 0, 2 * Math.PI);
+        context.strokeStyle = "rgba(214, 173, 99, 0.2)";
+        context.lineWidth = 1 * scaleFactor;
+        context.stroke();
+
+        if (!landFeatures) return;
+
+        // Graticule Lines
+        const graticule = d3.geoGraticule();
+        context.beginPath();
+        path(graticule());
+        context.strokeStyle = "rgba(255, 255, 255, 0.04)";
+        context.lineWidth = 0.5 * scaleFactor;
+        context.stroke();
+
+        // Land Outline
+        context.beginPath();
+        landFeatures.features.forEach(feature => path(feature));
+        context.strokeStyle = "rgba(255, 255, 255, 0.12)";
+        context.lineWidth = 0.8 * scaleFactor;
+        context.stroke();
+
+        // Render Dotted Red Data Coordinates
+        context.fillStyle = "#fc3b56";
+        allDots.forEach(dot => {
+          const projected = projection([dot.lng, dot.lat]);
+          if (projected) {
+            context.beginPath();
+            context.arc(projected[0], projected[1], 1.25 * scaleFactor, 0, 2 * Math.PI);
+            context.fill();
+          }
+        });
+      }
+
+      async function loadWorldData() {
+        try {
+          const response = await fetch("https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json");
+          if (!response.ok) throw new Error("Network response was not ok");
+          landFeatures = await response.json();
+
+          landFeatures.features.forEach(feature => {
+            const dots = generateDotsInPolygon(feature, 22);
+            dots.forEach(([lng, lat]) => allDots.push({ lng, lat }));
+          });
+
+          loader.style.display = 'none';
+          canvas.classList.add('loaded');
+
+          d3.timer(() => {
+            if (autoRotate) {
+              rotation[0] += rotationSpeed;
+              projection.rotate(rotation);
+              render();
+            }
+          });
+        } catch (e) {
+          loader.textContent = "OFFLINE MATRIX";
+        }
+      }
+
+      function initInteraction() {
+        let startX, startY, startRotation;
+
+        canvas.addEventListener('mousedown', (e) => {
+          autoRotate = false;
+          startX = e.clientX;
+          startY = e.clientY;
+          startRotation = [...rotation];
+
+          function onMouseMove(e) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            rotation[0] = startRotation[0] + dx * 0.5;
+            rotation[1] = Math.max(-85, Math.min(85, startRotation[1] - dy * 0.5));
+            projection.rotate(rotation);
+            render();
+          }
+
+          function onMouseUp() {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            setTimeout(() => { autoRotate = true; }, 1200);
+          }
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const scaleFactor = e.deltaY > 0 ? 0.92 : 1.08;
+          const currentScale = projection.scale();
+          const newScale = Math.max(radius * 0.5, Math.min(radius * 3, currentScale * scaleFactor));
+          projection.scale(newScale);
+          render();
+        }, { passive: false });
+      }
+
+      loadWorldData();
+      initInteraction();
+    })();
+  </script>
+</body>
+</html>
